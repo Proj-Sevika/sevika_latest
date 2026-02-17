@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Poppins,Arial;
+    background:#f4f6f9;
+}
+.sidebar{
+    width:230px;
+    height:100vh;
+    background:#0D1E4C;
+    position:fixed;
+    color:white;
+}
+.sidebar h2{
+    text-align:center;
+    padding:20px;
+}
+.sidebar a{
+    display:block;
+    padding:12px 20px;
+    color:white;
+    text-decoration:none;
+}
+.sidebar a:hover{
+    background:#C48CB3;
+}
+.main{
+    margin-left:230px;
+    padding:30px;
+}
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:20px;
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+th,td{
+    padding:10px;
+    border-bottom:1px solid #ddd;
+    text-align:center;
+}
+th{
+    background:#f0f0f0;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+<h2>Admin Panel</h2>
+<a href="#">Dashboard</a>
+<a href="#">Recent Donations</a>
+<a href="#">Available Items</a>
+<a href="#">Organization Requests</a>
+<a href="javascript:void(0)" id="logoutBtn">Logout</a>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+<!-- Welcome -->
+<div class="card">
+<h3 id="welcome"></h3>
+<p id="adminid"></p>
+</div>
+
+<!-- Recent Donations -->
+<div class="card">
+<h3>Recent Donation History</h3> 
+
+<table id="recentTable">
+<thead>
+<tr>
+    <th>Donor</th>
+    <th>Category</th>
+    <th>Organisation</th>
+    <th>Settled On</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<!-- Available Items -->
+<div class="card">
+<h3>Available Items</h3>
+
+<table id="availableTable">
+<thead>
+<tr>
+    <th>Donor</th>
+    <th>Category</th>
+    <th>Organisation</th>
+    <th>Action</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<!-- 🔹 ORGANIZATION POSTS -->
+<div class="card">
+<h3>Requests Posted by Organizations</h3>
+<table id="orgTable">
+<thead>
+<tr>
+<th>Organization</th>
+<th>Title</th>
+<th>Description</th>
+<th>Urgency</th>
+<th>Status</th>
+<th>Posted On</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+</div>
+
+<script>
+/* Read admin details from URL */
+const params = new URLSearchParams(window.location.search);
+const adminId = params.get("id");
+
+/* Format Admin01, Admin02 */
+function formatAdminId(id){
+    return "Admin" + String(id).padStart(2, "0");
+}
+
+/* Fetch admin details from backend */
+fetch(`/admin/details/${adminId}`)
+.then(res => res.json())
+.then(admin => {
+
+    document.getElementById("welcome").innerText =
+        `Welcome Admin, ${admin.full_name} 👋`;
+
+    document.getElementById("adminid").innerText =
+        formatAdminId(admin.id);
+})
+.catch(() => {
+    document.getElementById("welcome").innerText = "Welcome Admin";
+});
+
+/* ================= RECENT DONATIONS ================= */
+function loadRecentDonations() {
+    fetch("/admin/recent-donations")
+    .then(res => res.json())
+    .then(data => {
+        const tbody = document.querySelector("#recentTable tbody");
+        tbody.innerHTML = "";
+
+        if (data.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4">No settled donations yet</td>
+                </tr>`;
+            return;
+        }
+
+        data.forEach(d => {
+            tbody.innerHTML += `
+            <tr>
+                <td>${d.donor_name}</td>
+                <td>${d.category}</td>
+                <td>${d.organisation_name || "-"}</td>
+                <td>${new Date(d.settled_date).toLocaleDateString()}</td>
+            </tr>`;
+        });
+    })
+    .catch(err => console.error("Recent donation load failed", err));
+}
+
+
+/* ================= AVAILABLE ITEMS ================= */
+
+
+/* Fetch organisations */
+function loadOrganisations() {
+    fetch("/admin/organisations")
+    .then(res => res.json())
+    .then(orgs => {
+        let options = `<option value="">Select organisation</option>`;
+
+        orgs.forEach(o => {
+            options += `<option value="${o.id}">${o.full_name}</option>`;
+        });
+
+        document.querySelectorAll("select[id^='org_']")
+            .forEach(select => {
+                select.innerHTML = options;
+            });
+    });
+}
+
+
+
+/* ================= AVAILABLE ITEMS ================= */
+
+function loadAvailableItems() {
+    fetch("/admin/available-items")
+    .then(res => res.json())
+    .then(data => {
+        const tbody = document.querySelector("#availableTable tbody");
+        tbody.innerHTML = "";
+
+        if (data.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4">No pending donations</td>
+                </tr>`;
+            return;
+        }
+
+        data.forEach(d => {
+            tbody.innerHTML += `
+            <tr>
+                <td>${d.donor_name}</td>
+                <td>${d.category}</td>
+                <td>
+                    <select id="org_${d.donation_id}">
+                        <option value="">Select organisation</option>
+                    </select>
+                </td>
+                <td>
+                    <button onclick="settleDonation(${d.donation_id})">
+                        Settle
+                    </button>
+                </td>
+            </tr>`;
+        });
+
+        loadOrganisations(); // populate dropdowns AFTER rows exist
+    });
+}
+
+
+
+/* ===== Settle Donation ===== */
+function settleDonation(donationId) {
+    console.log("settleDonation called with:", donationId);
+
+    const orgSelect = document.getElementById("org_" + donationId);
+    console.log("orgSelect:", orgSelect);
+
+    if (!orgSelect) {
+        alert("Dropdown not found for donation " + donationId);
+        return;
+    }
+
+    const organisation_id = orgSelect.value;
+    console.log("Selected organisation:", organisation_id);
+
+    if (!organisation_id) {
+        alert("Please select an organisation");
+        return;
+    }
+
+    fetch("/admin/settle-donation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            donation_id: donationId,
+            organisation_id: organisation_id
+        })
+    })
+    .then(res => {
+        console.log("Response status:", res.status);
+        return res.json();
+    })
+    .then(data => {
+        console.log("Server response:", data);
+        alert(data.message);
+        loadAvailableItems();
+    })
+    .catch(err => {
+        console.error("Fetch error:", err);
+        alert("Server error");
+    });
+}
+
+
+/* ================= ORG REQUESTS ================= */
+
+fetch("/admin/all-requests")
+.then(res => res.json())
+.then(data => {
+    const tbody = document.querySelector("#orgTable tbody");
+    tbody.innerHTML = "";
+
+    data.forEach(r => {
+
+        let action = "";
+
+        if(r.type === "need"){
+            if(r.status === "Settled"){
+                action = "✅ Settled";
+            }else{
+                action = `<button onclick="settleNeed(${r.id})">Settle</button>`;
+            }
+        }
+
+        // if(r.type === "donation"){
+        //     action = `<button onclick="fulfillDonation(${r.id})">Fulfill</button>`;
+        // }
+        if(r.type === "donation"){
+            if(r.status === "Settled"){
+                action = "✅ Settled";
+            }else{
+                action = `<button onclick="settle_Donation(${r.id})">Settle</button>`;
+            }
+        }
+        tbody.innerHTML += `
+        <tr>
+            <td>${r.requester}</td>
+            <td>${r.title}</td>
+            <td>${r.description || "-"}</td>
+            <td>${r.urgency}</td>
+            <td>${action}</td>
+            <td>${new Date(r.created_at).toLocaleDateString()}</td>
+        </tr>`;
+    });
+});
+
+function settleNeed(id){
+    fetch("/admin/settle-need",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ id:id })
+    })
+    .then(res=>res.json())
+    .then(d=>{
+        if(d.success) location.reload();
+    });
+}
+
+function settle_Donation(id){
+    fetch("/admin/settledonation",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ id:id })
+    })
+    .then(res=>res.json())
+    .then(d=>{
+        if(d.success) location.reload();
+    });
+}
+
+/* LOGOUT */
+logoutBtn.onclick=()=>{
+    localStorage.clear();
+    location.href="/logout";
+};
+
+loadAvailableItems();
+loadRecentDonations();
+
+</script>
+
+</body>
+</html>

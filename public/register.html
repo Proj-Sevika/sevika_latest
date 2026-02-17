@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Register | Sevika</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Roboto+Slab:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:Poppins;
+  background:linear-gradient(180deg,#83A6CE,#E5C9D7);
+  color:#0B1B32;
+}
+header{
+  background:linear-gradient(135deg,#0D1E4C,#26415E);
+  color:white;text-align:center;padding:40px 20px;
+}
+.form-container{
+  max-width:500px;background:white;margin:50px auto;
+  padding:35px;border-radius:20px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+h2{text-align:center;margin-bottom:20px}
+label{display:block;margin-top:15px;font-weight:600}
+input,select{
+  width:100%;padding:10px;margin-top:5px;
+  border-radius:8px;border:1px solid #ccc;
+}
+button{
+  margin-top:25px;width:100%;
+  padding:12px;background:#C48CB3;
+  border:none;border-radius:30px;
+  font-weight:600;cursor:pointer;
+}
+button:hover{opacity:0.9}
+.hidden{display:none}
+.back{
+  text-align:center;display:block;margin-top:15px;
+  text-decoration:none;color:#0B1B32;font-weight:bold
+}
+.back:hover{color:#C48CB3}
+
+.location-btn{
+  margin-top:8px;
+  background:#26415E;
+  color:white;
+  border-radius:8px;
+}
+</style>
+
+<script>
+function showFields(){
+  const role = document.getElementById("role").value;
+  document.getElementById("donorFields").style.display =
+    role==="donor" ? "block" : "none";
+  document.getElementById("orgFields").style.display =
+    role==="organisation" ? "block" : "none";
+}
+
+function validate(){
+  const p = document.getElementById("pass").value;
+  const cp = document.getElementById("cpass").value;
+
+  if(p !== cp){
+    alert("Passwords do not match");
+    return false;
+  }
+  return true;
+}
+
+function detectLocation(){
+  const status = document.getElementById("locationStatus");
+
+  if(!navigator.geolocation){
+    status.innerText = "Geolocation not supported by browser.";
+    return;
+  }
+
+  status.innerText = "Detecting location...";
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      document.getElementById("latitude").value =
+        position.coords.latitude;
+      document.getElementById("longitude").value =
+        position.coords.longitude;
+
+      status.innerText =
+        "Location detected ✔ (Lat: " +
+        position.coords.latitude.toFixed(4) +
+        ", Long: " +
+        position.coords.longitude.toFixed(4) + ")";
+    },
+    () => {
+      status.innerText =
+        "Location access denied. Please allow location.";
+    }
+  );
+}
+</script>
+</head>
+
+<body>
+
+<header>
+<h1>Sevika</h1>
+<p>User Registration</p>
+</header>
+
+<div class="form-container">
+<h2>Register</h2>
+
+<form action="/register" method="POST" onsubmit="return validate()">
+
+  <label>Full Name</label>
+  <input type="text" name="full_name" required>
+
+  <label>Email</label>
+  <input type="email" name="email" required>
+
+  <label>Phone</label>
+  <input type="text" name="phone" required>
+
+  <!-- LOCATION SECTION -->
+  <label>Location</label>
+  <button type="button" class="location-btn" onclick="detectLocation()">
+    📍 Detect My Location
+  </button>
+
+  <p id="locationStatus" style="margin-top:8px;font-size:14px;"></p>
+
+  <!-- Hidden fields sent to backend -->
+  <input type="hidden" name="latitude" id="latitude">
+  <input type="hidden" name="longitude" id="longitude">
+
+  <label>Password</label>
+  <input type="password" id="pass" name="password" required>
+
+  <label>Confirm Password</label>
+  <input type="password" id="cpass" required>
+
+  <label>Register As</label>
+  <select name="role" id="role" onchange="showFields()" required>
+    <option value="">Select</option>
+    <option value="donor">Donor</option>
+    <option value="organisation">Organisation</option>
+  </select>
+
+  <button type="submit">Submit</button>
+</form>
+
+<a href="index.html" class="back">← Back to Home</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organisation Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Roboto+Slab:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Global */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Poppins', Arial, sans-serif;
+    background: linear-gradient(180deg, #e7dee0, #ebdee3); /* soft rose gradient background */
+    color: #0D1E4C; /* dark blue text */
+}
+
+/* Sidebar */
+.sidebar {
+    width: 230px;
+    height: 100vh;
+    background: #0D1E4C; /* dark blue */
+    position: fixed;
+    color: #e6d6de;
+    padding-top: 20px;
+}
+.sidebar h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-family: 'Roboto Slab', serif;
+}
+.sidebar a {
+    display: block;
+    padding: 12px;
+    color: #E5C9D7;
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 6px;
+    margin: 10px 15px;
+    text-align: center;
+    transition: 0.3s;
+}
+.sidebar a:hover {
+    background: #26415E; /* darker blue hover */
+    color: #C48CB3; /* rose accent */
+}
+
+/* Main Content */
+.main {
+    margin-left: 230px;
+    padding: 30px;
+}
+
+/* Cards */
+.card {
+    background: #FFF1F6; /* soft rose card */
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+}
+
+/* Buttons */
+button, .btn {
+    padding: 8px 15px;
+    background: #0D1E4C; /* dark blue button */
+    border: none;
+    color: #FFE6EB; /* light rose text */
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 5px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+button:hover, .btn:hover {
+    background: #C48CB3; /* rose hover */
+    color: white;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+th {
+    background: #0D1E4C; /* dark blue header */
+    color: #f0e3e6; /* soft rose text */
+}
+td {
+    background: #FFF1F6; /* soft rose rows */
+}
+tr:nth-child(even) td {
+    background: #e9e4e5; /* slightly lighter rose */
+}
+
+/* Forms */
+.form-container {
+    background: #FFF1F6; /* soft rose form background */
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 20px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+}
+.form-container input, 
+.form-container select, 
+.form-container textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+/* Section Titles */
+section h2 {
+    text-align: center;
+    color: #0D1E4C;
+    font-family: 'Roboto Slab', serif;
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+
+/* Responsive */
+@media(max-width:768px){
+    .main { margin-left: 0; padding: 15px; }
+    .sidebar { width: 100%; height: auto; padding: 15px; }
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>Org Dashboard</h2>
+    <a href="#welcome">Welcome</a>
+    <a href="#items">Items Available</a>
+    <a href="#needs">My Needs</a>
+    <a href="#add-need">Add New Need</a>
+    
+    <a href="javascript:void(0)" id="logoutBtn">Logout</a>
+
+   
+</div>
+
+<div class="main">
+
+    <!-- Welcome Card -->
+    <div class="card" id="welcome">
+        <h3 id="Welcome">Welcome, Organization 👋</h3>
+    </div>
+
+    <!-- Items Available -->
+    <div class="card" id="items">
+        <h3>Items Available</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Donor</th>
+                    <th>Category</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="itemsBody">
+                <!-- Filled dynamically -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- My Needs Table -->
+    <section id="needs">
+        <h2>My Needs</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Urgency</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody id="needsBody">
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Add New Need Form -->
+    <section id="add-need">
+        <h2>Add New Need</h2>
+        <div class="form-container">
+            <form id="addNeedForm">
+
+                <label for="title">Title</label>
+                <input type="text" id="title" name="title" required>
+
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="4"></textarea>
+
+                <label for="urgency">Urgency</label>
+                <select id="urgency" name="urgency">
+                    <option value="Low">Low</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="High">High</option>
+                </select>
+
+                <button type="submit" class="btn">Add Need</button>
+            </form>
+        </div>
+    </section>
+
+</div>
+
+
+<script>
+/* ===== Get Org details from URL ===== */
+const params = new URLSearchParams(window.location.search);
+const orgName = params.get("name") || "Organization";
+const orgId = params.get("id");
+
+document.getElementById("Welcome").innerText = `Welcome, ${orgName} 👋`;
+
+/* ===== Fetch Available Donations (PENDING) ===== */
+async function fetchItems() {
+    try {
+        const res = await fetch("http://localhost:3000/donations/available");
+        const data = await res.json();
+
+        const tbody = document.getElementById("itemsBody");
+        tbody.innerHTML = "";
+
+        if (!Array.isArray(data) || data.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align:center;">
+                        No items available at the moment
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        data.forEach(item => {
+            tbody.innerHTML += `
+            <tr>
+                <td>D${item.user_id}</td>
+                <td>${item.category}</td>
+                <td>
+                    <button onclick="requestItem(${item.donation_id})">
+                        Request
+                    </button>
+                </td>
+            </tr>`;
+        });
+
+    } catch (err) {
+        console.error("Error loading items:", err);
+    }
+}
+
+
+/* ===== Request Donation (Accept Donation) ===== */
+async function requestItem(donationId) {
+    try {
+        const res = await fetch("http://localhost:3000/request-donation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                donation_id: donationId,
+                org_id: orgId
+            })
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+            alert("Donation requested successfully");
+            fetchItems(); // refresh list
+        } else {
+            alert("Already requested or failed");
+        }
+
+    } catch (err) {
+        console.error(err);
+        alert("Failed to request donation");
+    }
+}
+
+/* ===== Fetch My Needs ===== */
+async function fetchMyNeeds() {
+    try {
+        const res = await fetch(`http://localhost:3000/org-requests/${orgId}`);
+        const data = await res.json();
+
+        const tbody = document.getElementById("needsBody");
+        tbody.innerHTML = "";
+
+        if (data.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align:center;">
+                        No needs posted yet
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        data.forEach(n => {
+            tbody.innerHTML += `
+            <tr>
+                <td>${n.title}</td>
+                <td>${n.description || "-"}</td>
+                <td>${n.urgency}</td>
+                <td>${n.status}</td>
+                <td>${new Date(n.created_at).toLocaleString()}</td>
+            </tr>`;
+        });
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+/* ===== Add New Need ===== */
+document.getElementById("addNeedForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = Object.fromEntries(new FormData(e.target).entries());
+    formData.org_id = orgId;
+
+    const res = await fetch("http://localhost:3000/add-org-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+    });
+
+    const result = await res.json();
+    alert(result.message);
+
+    e.target.reset();
+    fetchMyNeeds();
+});
+
+/* ===== Logout ===== */
+document.getElementById("logoutBtn").addEventListener("click", () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = "/login.html";
+});
+
+/* ===== Initial Load ===== */
+fetchItems();
+fetchMyNeeds();
+</script>
+
+</body>
+</html>

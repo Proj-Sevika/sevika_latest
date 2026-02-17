@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login | Sevika</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Roboto+Slab:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+/* SAME CSS - no change */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+body{
+    margin:0;
+    font-family:'Poppins', Arial, sans-serif;
+    background:linear-gradient(180deg,#83A6CE,#E5C9D7);
+    color:#0B1B32;
+}
+
+header{
+    background:linear-gradient(135deg,#0D1E4C,#26415E);
+    color:white;
+    text-align:center;
+    padding:40px 20px;
+}
+
+header h1{
+    font-family: 'Roboto Slab', serif;
+    font-size:42px;
+    margin:0;
+}
+
+header p{
+    font-size:18px;
+    margin-top:8px;
+}
+
+.login-container{
+    max-width:400px;
+    background:white;
+    margin:60px auto;
+    padding:35px;
+    border-radius:20px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+h2{text-align:center;color:#0D1E4C}
+
+label{
+    display:block;
+    margin-top:18px;
+    font-weight:600;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin-top:6px;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+button{
+    margin-top:25px;
+    width:100%;
+    padding:12px;
+    background:#C48CB3;
+    border:none;
+    border-radius:30px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+button:hover{opacity:0.9}
+
+.links{
+    text-align:center;
+    margin-top:18px;
+}
+
+.links a{
+    text-decoration:none;
+    color:#0D1E4C;
+    font-weight:bold;
+    margin:0 8px;
+}
+
+.login-container > a{
+    display:block;
+    text-align:center;
+    margin-top:15px;
+    text-decoration:none;
+    color:#0D1E4C;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Sevika</h1>
+<p>User Login</p>
+</header>
+
+<div class="login-container">
+<h2>Login</h2>
+
+<!-- 🔥 FORM ADDED -->
+<form action="http://localhost:3000/login" method="POST">
+
+<label>Email</label>
+<input type="email" name="email" placeholder="Enter your email" required>
+
+<label>Password</label>
+<input type="password" name="password" placeholder="Enter your password" required>
+
+<button type="submit">Login</button>
+
+</form>
+
+<a href="forgot_password.html">Forgot Password?</a>
+
+<div class="links">
+    <a href="register.html">Create Account</a> |
+    <a href="index.html">Back to Home</a>
+</div>
+</div>
+
+</body>
+</html>

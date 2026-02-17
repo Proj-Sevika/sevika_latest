@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sevika</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Roboto+Slab:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+/* Global */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body{
+    margin:0;
+    font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+    background:linear-gradient(180deg,#E5C9D7,#83A6CE);
+    color:#0B1B32;
+}
+
+/* HERO */
+header{
+    background:linear-gradient(135deg,#0D1E4C,#26415E);
+    color:white;
+    text-align:center;
+    padding:70px 20px;
+}
+header h1{
+    font-family: 'Roboto Slab', serif;
+    font-size:50px;
+    margin:0;
+}
+header p{
+    font-size:18px;
+    margin-top:12px;
+    color:#E5C9D7;
+}
+
+/* NAVBAR */
+nav{
+    background:#0B1B32;
+    display:flex;
+    justify-content:center;
+    padding:15px;
+}
+nav a{
+    color:#E5C9D7;
+    margin:0 18px;
+    text-decoration:none;
+    font-weight:600;
+    font-family: 'Poppins', sans-serif;
+}
+nav a:hover{
+    color:#C48CB3;
+    text-decoration:underline;
+}
+
+/* SECTION BASE */
+section{
+    max-width:1150px;
+    margin:50px auto;
+    padding:45px;
+    border-radius:20px;
+}
+h2{
+    text-align:center;
+    color:#0D1E4C;
+    font-size:32px;
+    font-family: 'Roboto Slab', serif;
+}
+section p{
+    line-height:1.6;
+    font-size:16px;
+}
+
+/* ABOUT */
+.about{
+    background:#F3DEE6;
+}
+
+/* CARDS */
+.card-container{
+    display:flex;
+    gap:25px;
+    justify-content:center;
+    flex-wrap:wrap;
+}
+.card{
+    width:280px;
+    padding:25px;
+    border-radius:18px;
+    background:linear-gradient(135deg,#83A6CE,#C48CB3);
+    text-align:center;
+    box-shadow:0 10px 20px rgba(0,0,0,0.15);
+    transition: transform 0.3s ease;
+}
+.card:hover{
+    transform: translateY(-10px);
+}
+.card h3{
+    margin-top:0;
+    color:#0D1E4C;
+    font-family: 'Roboto Slab', serif;
+}
+
+/* MISSION & VISION */
+.mission-vision{
+    background:linear-gradient(135deg,#83A6CE,#E5C9D7);
+}
+.mv-container{
+    display:flex;
+    gap:30px;
+    justify-content:center;
+    flex-wrap:wrap;
+}
+.mv-card{
+    width:420px;
+    padding:30px;
+    border-radius:20px;
+    background:linear-gradient(135deg,#C48CB3,#83A6CE);
+    text-align:center;
+    box-shadow:0 10px 20px rgba(0,0,0,0.15);
+    transition: transform 0.3s ease;
+}
+.mv-card:hover{
+    transform: translateY(-10px);
+}
+.mv-card h3{
+    color:#0D1E4C;
+    font-family: 'Roboto Slab', serif;
+}
+
+/* VERIFICATION */
+.verification{
+    background:linear-gradient(135deg,#26415E,#0D1E4C);
+    color:white;
+}
+.verification h2{
+    color:#E5C9D7;
+}
+.verification .card{
+    background:linear-gradient(135deg,#E5C9D7,#83A6CE);
+    color:#0B1B32;
+}
+
+/* STATS */
+.stats{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    flex-wrap:wrap;
+}
+.stat{
+    width:220px;
+    padding:30px;
+    border-radius:18px;
+    background:linear-gradient(135deg,#C48CB3,#E5C9D7);
+    text-align:center;
+    font-weight:bold;
+}
+.stat h3{
+    margin:0;
+    font-size:36px;
+    color:#0D1E4C;
+    font-family: 'Roboto Slab', serif;
+}
+
+/* CTA */
+.cta{
+    background:linear-gradient(135deg,#0D1E4C,#0B1B32);
+    color:white;
+    text-align:center;
+    padding:60px 20px;
+}
+.cta h2{
+    color:#C48CB3;
+    font-family: 'Roboto Slab', serif;
+    font-size:36px;
+}
+.cta a{
+    display:inline-block;
+    margin-top:25px;
+    padding:12px 25px;
+    background:#C48CB3;
+    color:white;
+    font-weight:600;
+    border-radius:10px;
+    text-decoration:none;
+    transition: background 0.3s ease;
+}
+.cta a:hover{
+    background:#E5C9D7;
+    color:#0D1E4C;
+}
+
+/* FOOTER */
+footer{
+    background:#0B1B32;
+    color:#E5C9D7;
+    text-align:center;
+    padding:22px;
+    font-size:14px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Responsive */
+@media(max-width:768px){
+    section{
+        padding:25px 15px;
+    }
+    .mv-container, .card-container, .stats{
+        flex-direction:column;
+        align-items:center;
+    }
+    .mv-card, .card, .stat{
+        width:90%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- HERO -->
+<header>
+    <h1>Sevika</h1>
+    <p>Connecting Surplus Resources with Local Needs</p>
+</header>
+
+<!-- NAVIGATION -->
+<nav>
+    <a href="index.html">Home</a>
+    <a href="register.html">Register</a>
+    <a href="login.html">Login</a>
+</nav>
+
+<!-- ABOUT -->
+<section class="about">
+    <h2>About Sevika</h2>
+    <p style="text-align:center;">
+        Sevika is a hyper-local charity platform that enables individuals and
+        organizations to donate surplus clothes, food, medicines, and essential items
+        to nearby charities and collection centers.
+    </p>
+    <p style="text-align:center;">
+        The platform ensures that all donated items undergo verification before collection
+        and distribution to maintain safety, quality, and trust.
+    </p>
+</section>
+
+<!-- MISSION & VISION -->
+<section class="mission-vision">
+    <h2>Our Mission & Vision</h2>
+    <div class="mv-container">
+        <div class="mv-card">
+            <h3>Mission</h3>
+            <p>
+                To reduce the wastage of surplus essential items by providing a simple and
+                reliable digital platform that connects donors with people in need,
+                promoting responsible sharing and community support.
+            </p>
+        </div>
+        <div class="mv-card">
+            <h3>Vision</h3>
+            <p>
+                To create a sustainable, technology-driven system that encourages efficient
+                redistribution of essential resources and strengthens community welfare
+                through transparent and ethical practices.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section>
+    <h2>How It Works</h2>
+    <div class="card-container">
+        <div class="card">
+            <h3>Donate</h3>
+            <p>Donors list surplus clothes, food, medicines, or essential items.</p>
+        </div>
+        <div class="card">
+            <h3>Verification</h3>
+            <p>Medicines are checked for expiry and other items are inspected for quality.</p>
+        </div>
+        <div class="card">
+            <h3>Collect & Distribute</h3>
+            <p>Verified items are collected and distributed to people in need.</p>
+        </div>
+    </div>
+</section>
+
+<!-- VERIFICATION DETAILS -->
+<section class="verification">
+    <h2>Verification & Safety</h2>
+    <div class="card-container">
+        <div class="card">
+            <h3>Medicine Safety</h3>
+            <p>Ensures medicines are not expired and safe for consumption.</p>
+        </div>
+        <div class="card">
+            <h3>Item Quality</h3>
+            <p>Food, clothes, and essentials are checked for acceptable condition.</p>
+        </div>
+        <div class="card">
+            <h3>Trusted Distribution</h3>
+            <p>Only verified donations are approved for final distribution.</p>
+        </div>
+    </div>
+</section>
+
+<!-- IMPACT -->
+<section>
+    <h2>Our Impact</h2>
+    <div class="stats">
+        <div class="stat">
+            <h3>0+</h3>
+            Donations
+        </div>
+        <div class="stat">
+            <h3>0+</h3>
+            Charities
+        </div>
+        <div class="stat">
+            <h3>0+</h3>
+            Localities
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+    <h2>Make a Difference Today</h2>
+    <p>Your contribution can change lives.</p>
+    <a href="register.html">Get Started</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    © 2026 Sevika
+</footer>
+
+</body>
+</html>

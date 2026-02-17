@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Donor Dashboard</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Poppins,Arial;
+    background:#f4f6f9;
+}
+.sidebar{
+    width:230px;
+    height:100vh;
+    background:#0D1E4C;
+    position:fixed;
+    color:white;
+}
+.sidebar h2{
+    text-align:center;
+    padding:20px;
+}
+.sidebar a{
+    display:block;
+    padding:12px 20px;
+    color:white;
+    text-decoration:none;
+}
+.sidebar a:hover{
+    background:#C48CB3;
+}
+.main{
+    margin-left:230px;
+    padding:30px;
+}
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:20px;
+}
+input,select{
+    width:100%;
+    padding:10px;
+    margin:6px 0 12px;
+}
+label{font-weight:600;}
+button.submit{
+    width:100%;
+    padding:12px;
+    background:#0D1E4C;
+    color:white;
+    border:none;
+    border-radius:20px;
+    cursor:pointer;
+}
+.hidden{display:none;}
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+th,td{
+    padding:10px;
+    border-bottom:1px solid #ddd;
+    text-align:left;
+}
+th{
+    background:#f0f0f0;
+}
+.status-Pending{color:orange;font-weight:600;}
+.status-Verified{color:blue;font-weight:600;}
+.status-Collected{color:green;font-weight:600;}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+<h2>Donor Panel</h2>
+<a href="#">Dashboard</a>
+<a href="#addDonation">Add Donation</a>
+<a href="#history">History</a>
+<a href="javascript:void(0)" id="logoutBtn">Logout</a>
+</div>
+
+<div class="main">
+
+<!-- WELCOME -->
+<div class="card">
+<h3 id="welcome"></h3>
+<p id="userid"></p>
+</div>
+
+<!-- ADD DONATION -->
+<div class="card" id="addDonation">
+<h3>Add Donation</h3>
+
+<form id="donationForm">
+
+<label>Category</label>
+<select name="category" id="category" onchange="showFields()" required>
+<option value="">Select</option>
+<option value="clothes">Clothes</option>
+<option value="food">Food</option>
+<option value="medicine">Medicine</option>
+<option value="others">Others</option>
+</select>
+
+<div id="clothesFields" class="hidden">
+<label>Gender</label>
+<select name="gender">
+<option value="">Select</option>
+<option>Male</option>
+<option>Female</option>
+<option>Unisex</option>
+</select>
+
+<label>Age Group</label>
+<select name="age_group">
+<option value="">Select</option>
+<option>Kids</option>
+<option>Teens</option>
+<option>Adults</option>
+</select>
+</div>
+
+<div id="foodFields" class="hidden">
+<label>Food Type</label>
+<select name="food_type">
+<option value="">Select</option>
+<option>Cooked</option>
+<option>Packed</option>
+<option>Raw</option>
+</select>
+
+<label>Prepared Date</label>
+<input type="date" name="prepared_date">
+
+<label>Best Before</label>
+<input type="date" name="best_before">
+
+<label>Pickup Urgency</label>
+<select name="pickup_urgency">
+<option value="">Select</option>
+<option>Immediate</option>
+<option>Within 2 hours</option>
+<option>Today</option>
+</select>
+
+<label>Nearby Organisations</label>
+<select name="organisation_id" id="orgSelect">
+<option value="">Click load below</option>
+</select>
+
+<button type="button" onclick="loadNearbyOrgs()">📍 Load Nearby Organisations</button>
+<p id="orgStatus"></p>
+</div>
+
+<div id="medicineFields" class="hidden">
+<label>Medicine Name</label>
+<input type="text" name="medicine_name">
+<label>Expiry Date</label>
+<input type="date" name="expiry_date">
+</div>
+
+<div id="othersFields" class="hidden">
+<label>Item Name</label>
+<input type="text" name="item_name">
+</div>
+
+<label>Pickup Preference</label>
+<select name="pickup_preference" required>
+<option>Pickup</option>
+<option>Delivery</option>
+</select>
+
+<label>Expected Date & Time</label>
+<input type="datetime-local" name="expected_datetime">
+
+<button class="submit">Submit Donation</button>
+</form>
+</div>
+
+<!-- HISTORY -->
+<div class="card" id="history">
+<h3>Donation History</h3>
+
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Category</th>
+<th>Organisation</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody id="historyBody"></tbody>
+</table>
+
+<p id="noHistory"></p>
+</div>
+
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const name = params.get("name");
+const userId = params.get("id");
+
+document.getElementById("welcome").innerText = "Welcome, " + name + " 👋";
+document.getElementById("userid").innerText = "Donor ID: D" + userId;
+
+function showFields(){
+    hideAll();
+    const type = category.value;
+    if(type==="clothes") clothesFields.classList.remove("hidden");
+    if(type==="food") foodFields.classList.remove("hidden");
+    if(type==="medicine") medicineFields.classList.remove("hidden");
+    if(type==="others") othersFields.classList.remove("hidden");
+}
+function hideAll(){
+    ["clothesFields","foodFields","medicineFields","othersFields"]
+    .forEach(id=>document.getElementById(id).classList.add("hidden"));
+}
+
+/* SUBMIT DONATION */
+donationForm.addEventListener("submit", async e=>{
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(e.target));
+    data.user_id = userId;
+
+    const res = await fetch("/add-donation",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(data)
+    });
+
+    const result = await res.json();
+    alert(result.message);
+    e.target.reset();
+    hideAll();
+    loadHistory(); // refresh history
+});
+
+/* LOAD HISTORY */
+async function loadHistory(){
+    const res = await fetch(`/donor/history?userId=${userId}`);
+    const data = await res.json();
+
+    const body = document.getElementById("historyBody");
+    const noHistory = document.getElementById("noHistory");
+
+    body.innerHTML = "";
+    noHistory.innerText = "";
+
+    // SAFETY CHECK
+    if (!Array.isArray(data) || data.length === 0) {
+        noHistory.innerText = "No donations yet.";
+        return;
+    }
+
+    data.forEach(d => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${new Date(d.created_at).toLocaleString()}</td>
+            <td>${d.category}</td>
+            <td>${d.organisation_name || "Not Assigned"}</td>
+            <td class="status-${d.status}">${d.status}</td>
+        `;
+        body.appendChild(row);
+    });
+}
+
+
+/* LOAD NEARBY ORGS */
+async function loadNearbyOrgs(){
+    const res = await fetch(`/food/nearby-orgs?userId=${userId}`);
+    const orgs = await res.json();
+    orgSelect.innerHTML='<option value="">Select Organisation</option>';
+    orgs.forEach(o=>{
+        orgSelect.innerHTML += `<option value="${o.id}">${o.name} (${o.distance} km)</option>`;
+    });
+}
+
+/* LOGOUT */
+logoutBtn.onclick=()=>{
+    localStorage.clear();
+    location.href="/logout";
+};
+
+loadHistory();
+</script>
+
+</body>
+</html>
