@@ -130,20 +130,31 @@ th{
 </div>
 
 <script>
+
+const token = localStorage.getItem("token");
+
+/* Helper function so every request includes JWT */
+function authFetch(url, options = {}) {
+    options.headers = {
+        ...(options.headers || {}),
+        "Authorization": "Bearer " + token
+    };
+    return fetch(url, options);
+}
+
 /* Read admin details from URL */
 const params = new URLSearchParams(window.location.search);
 const adminId = params.get("id");
 
-/* Format Admin01, Admin02 */
+/* Format Admin01 */
 function formatAdminId(id){
-    return "Admin" + String(id).padStart(2, "0");
+    return "Admin" + String(id).padStart(2,"0");
 }
 
-/* Fetch admin details from backend */
-fetch(`/admin/details/${adminId}`)
+/* Fetch admin details */
+authFetch(`/admin/details/${adminId}`)
 .then(res => res.json())
 .then(admin => {
-
     document.getElementById("welcome").innerText =
         `Welcome Admin, ${admin.full_name} 👋`;
 
@@ -154,23 +165,28 @@ fetch(`/admin/details/${adminId}`)
     document.getElementById("welcome").innerText = "Welcome Admin";
 });
 
+
 /* ================= RECENT DONATIONS ================= */
-function loadRecentDonations() {
-    fetch("/admin/recent-donations")
+
+function loadRecentDonations(){
+
+    authFetch("/admin/recent-donations")
     .then(res => res.json())
     .then(data => {
+
         const tbody = document.querySelector("#recentTable tbody");
         tbody.innerHTML = "";
 
-        if (data.length === 0) {
+        if(data.length === 0){
             tbody.innerHTML = `
-                <tr>
-                    <td colspan="4">No settled donations yet</td>
-                </tr>`;
+            <tr>
+                <td colspan="4">No settled donations yet</td>
+            </tr>`;
             return;
         }
 
         data.forEach(d => {
+
             tbody.innerHTML += `
             <tr>
                 <td>${d.donor_name}</td>
@@ -178,53 +194,59 @@ function loadRecentDonations() {
                 <td>${d.organisation_name || "-"}</td>
                 <td>${new Date(d.settled_date).toLocaleDateString()}</td>
             </tr>`;
+
         });
-    })
-    .catch(err => console.error("Recent donation load failed", err));
+
+    });
+
 }
 
 
-/* ================= AVAILABLE ITEMS ================= */
+/* ================= ORGANISATIONS ================= */
 
+function loadOrganisations(){
 
-/* Fetch organisations */
-function loadOrganisations() {
-    fetch("/admin/organisations")
+    authFetch("/admin/organisations")
     .then(res => res.json())
     .then(orgs => {
+
         let options = `<option value="">Select organisation</option>`;
 
-        orgs.forEach(o => {
+        orgs.forEach(o=>{
             options += `<option value="${o.id}">${o.full_name}</option>`;
         });
 
         document.querySelectorAll("select[id^='org_']")
-            .forEach(select => {
-                select.innerHTML = options;
-            });
-    });
-}
+        .forEach(select=>{
+            select.innerHTML = options;
+        });
 
+    });
+
+}
 
 
 /* ================= AVAILABLE ITEMS ================= */
 
-function loadAvailableItems() {
-    fetch("/admin/available-items")
+function loadAvailableItems(){
+
+    authFetch("/admin/available-items")
     .then(res => res.json())
     .then(data => {
+
         const tbody = document.querySelector("#availableTable tbody");
         tbody.innerHTML = "";
 
-        if (data.length === 0) {
+        if(data.length === 0){
             tbody.innerHTML = `
-                <tr>
-                    <td colspan="4">No pending donations</td>
-                </tr>`;
+            <tr>
+                <td colspan="4">No pending donations</td>
+            </tr>`;
             return;
         }
 
         data.forEach(d => {
+
             tbody.innerHTML += `
             <tr>
                 <td>${d.donor_name}</td>
@@ -240,132 +262,164 @@ function loadAvailableItems() {
                     </button>
                 </td>
             </tr>`;
+
         });
 
-        loadOrganisations(); // populate dropdowns AFTER rows exist
+        loadOrganisations();
+
     });
+
 }
 
 
+/* ================= SETTLE DONATION ================= */
 
-/* ===== Settle Donation ===== */
-function settleDonation(donationId) {
-    console.log("settleDonation called with:", donationId);
+function settleDonation(donationId){
 
-    const orgSelect = document.getElementById("org_" + donationId);
-    console.log("orgSelect:", orgSelect);
+    const orgSelect = document.getElementById("org_"+donationId);
 
-    if (!orgSelect) {
-        alert("Dropdown not found for donation " + donationId);
+    if(!orgSelect){
+        alert("Dropdown not found");
         return;
     }
 
     const organisation_id = orgSelect.value;
-    console.log("Selected organisation:", organisation_id);
 
-    if (!organisation_id) {
+    if(!organisation_id){
         alert("Please select an organisation");
         return;
     }
 
-    fetch("/admin/settle-donation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            donation_id: donationId,
-            organisation_id: organisation_id
+    authFetch("/admin/settle-donation",{
+
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+            donation_id:donationId,
+            organisation_id:organisation_id
         })
+
     })
-    .then(res => {
-        console.log("Response status:", res.status);
-        return res.json();
-    })
-    .then(data => {
-        console.log("Server response:", data);
+    .then(res=>res.json())
+    .then(data=>{
         alert(data.message);
         loadAvailableItems();
-    })
-    .catch(err => {
-        console.error("Fetch error:", err);
-        alert("Server error");
+        loadRecentDonations();
     });
+
 }
 
 
 /* ================= ORG REQUESTS ================= */
 
-fetch("/admin/all-requests")
-.then(res => res.json())
-.then(data => {
-    const tbody = document.querySelector("#orgTable tbody");
-    tbody.innerHTML = "";
+function loadRequests(){
 
-    data.forEach(r => {
+    authFetch("/admin/all-requests")
+    .then(res=>res.json())
+    .then(data=>{
 
-        let action = "";
+        const tbody = document.querySelector("#orgTable tbody");
+        tbody.innerHTML="";
 
-        if(r.type === "need"){
-            if(r.status === "Settled"){
-                action = "✅ Settled";
-            }else{
-                action = `<button onclick="settleNeed(${r.id})">Settle</button>`;
+        data.forEach(r=>{
+
+            let action="";
+
+            if(r.type==="need"){
+
+                if(r.status==="Settled"){
+                    action="✅ Settled";
+                }
+                else{
+                    action=`<button onclick="settleNeed(${r.id})">Settle</button>`;
+                }
+
             }
-        }
 
-        // if(r.type === "donation"){
-        //     action = `<button onclick="fulfillDonation(${r.id})">Fulfill</button>`;
-        // }
-        if(r.type === "donation"){
-            if(r.status === "Settled"){
-                action = "✅ Settled";
-            }else{
-                action = `<button onclick="settle_Donation(${r.id})">Settle</button>`;
+            if(r.type==="donation"){
+
+                if(r.status==="Settled"){
+                    action="✅ Settled";
+                }
+                else{
+                    action=`<button onclick="settle_Donation(${r.id})">Settle</button>`;
+                }
+
             }
-        }
-        tbody.innerHTML += `
-        <tr>
-            <td>${r.requester}</td>
-            <td>${r.title}</td>
-            <td>${r.description || "-"}</td>
-            <td>${r.urgency}</td>
-            <td>${action}</td>
-            <td>${new Date(r.created_at).toLocaleDateString()}</td>
-        </tr>`;
+
+            tbody.innerHTML+=`
+            <tr>
+                <td>${r.requester}</td>
+                <td>${r.title}</td>
+                <td>${r.description || "-"}</td>
+                <td>${r.urgency}</td>
+                <td>${action}</td>
+                <td>${new Date(r.created_at).toLocaleDateString()}</td>
+            </tr>`;
+
+        });
+
     });
-});
+
+}
+
 
 function settleNeed(id){
-    fetch("/admin/settle-need",{
+
+    authFetch("/admin/settle-need",{
+
         method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ id:id })
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({id:id})
+
     })
     .then(res=>res.json())
     .then(d=>{
-        if(d.success) location.reload();
+        if(d.success) loadRequests();
     });
+
 }
+
 
 function settle_Donation(id){
-    fetch("/admin/settledonation",{
+
+    authFetch("/admin/settledonation",{
+
         method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ id:id })
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({id:id})
+
     })
     .then(res=>res.json())
     .then(d=>{
-        if(d.success) location.reload();
+        if(d.success) loadRequests();
     });
+
 }
 
-/* LOGOUT */
-logoutBtn.onclick=()=>{
+
+/* ================= LOGOUT ================= */
+
+logoutBtn.onclick = () => {
     localStorage.clear();
     location.href="/logout";
 };
 
+
+/* ================= INITIAL LOAD ================= */
+
 loadAvailableItems();
 loadRecentDonations();
+loadRequests();
 
 </script>
 

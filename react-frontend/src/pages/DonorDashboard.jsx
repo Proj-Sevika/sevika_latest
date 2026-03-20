@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Donordash.css";
 
-const token = localStorage.getItem("token");
-
 const DonorDashboard = () => {
+  const navigate = useNavigate();
 
   const userId = localStorage.getItem("userId");
   const name = localStorage.getItem("name");
@@ -14,6 +14,19 @@ const DonorDashboard = () => {
   const [nearbyOrgs, setNearbyOrgs] = useState([]);
   const [submitStatus, setSubmitStatus] = useState("");
   const [loadingOrgs, setLoadingOrgs] = useState(false);
+
+  /* ================= HELPER: get fresh token ================= */
+  const getToken = () => localStorage.getItem("token");
+
+  /* ================= HELPER: handle auth errors ================= */
+  const handleAuthError = (res) => {
+    if (res.status === 401 || res.status === 403) {
+      localStorage.clear();
+      navigate("/login");
+      return true;
+    }
+    return false;
+  };
 
   /* ================= HANDLE INPUT ================= */
   const handleChange = (e) => {
@@ -32,11 +45,13 @@ const DonorDashboard = () => {
       `http://localhost:3000/donor/history`,
       {
         headers: {
-          "Authorization": "Bearer " + token
+          "Authorization": "Bearer " + getToken()
         }
       }
     );
-      
+
+      if (handleAuthError(res)) return;
+
       const data = await res.json();
       setHistory(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -55,11 +70,12 @@ const DonorDashboard = () => {
         `http://localhost:3000/food/nearby-orgs`,
         {
           headers: {
-            "Authorization": "Bearer " + token
+            "Authorization": "Bearer " + getToken()
           }
         }
       );
 
+      if (handleAuthError(res)) return;
       if (!res.ok) throw new Error("Failed to fetch organisations");
 
       const orgs = await res.json();
@@ -94,17 +110,19 @@ const DonorDashboard = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Bearer " + token
+          "Authorization": "Bearer " + getToken()
         },
         body: JSON.stringify(data),
       });
+
+      if (handleAuthError(res)) return;
 
       const result = await res.json();
 
       if (!res.ok) {
         console.log("Server error response:", result);
-  throw new Error(result.message || "Donation failed");
-}
+        throw new Error(result.message || "Donation failed");
+      }
 
       setSubmitStatus("✅ Donation submitted successfully!");
 
@@ -122,12 +140,14 @@ const DonorDashboard = () => {
 
   const logout = () => {
     localStorage.clear();
-    window.location.href = "/";
+    navigate("/");
   };
 
   useEffect(() => {
-    if (!userId) {
-      window.location.href = "/login";
+    const token = getToken();
+    const role = localStorage.getItem("role");
+    if (!token || !userId || role !== "donor") {
+      navigate("/login");
     } else {
       loadHistory();
     }
@@ -165,6 +185,10 @@ const DonorDashboard = () => {
                 setCategory(e.target.value);
                 setFormData({});
                 setNearbyOrgs([]);
+                if (e.target.value) {
+                  // Auto-load organisations when a category is selected
+                  setTimeout(() => loadNearbyOrgs(), 0);
+                }
               }}
               required
             >
@@ -220,39 +244,6 @@ const DonorDashboard = () => {
                   <option>Within 2 hours</option>
                   <option>Today</option>
                 </select>
-
-                <label>Nearby Organisations</label>
-
-                <button
-                  type="button"
-                  className="small-btn"
-                  onClick={loadNearbyOrgs}
-                >
-                  📍 Load Nearby Organisations
-                </button>
-
-                {loadingOrgs ? (
-                  <p>Loading organisations...</p>
-                ) : (
-                  <select
-                    name="organisation_id"
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="">Select Organisation</option>
-                    {nearbyOrgs.map((o) => (
-                      <option key={o.id} value={o.id}>
-                        {o.name} ({o.distance?.toFixed(2)} km)
-                      </option>
-                    ))}
-                  </select>
-                )}
-
-                {nearbyOrgs.length === 0 && !loadingOrgs && (
-                  <p style={{ color: "gray" }}>
-                    Click above to load nearby organisations
-                  </p>
-                )}
               </>
             )}
 
@@ -293,6 +284,34 @@ const DonorDashboard = () => {
             {/* COMMON FIELDS */}
             {category && (
               <>
+                <label>Select Organisation (optional — admin can assign later)</label>
+                {loadingOrgs ? (
+                  <p>Loading organisations...</p>
+                ) : (
+                  <>
+                    <select
+                      name="organisation_id"
+                      onChange={handleChange}
+                    >
+                      <option value="">No preference — let admin assign</option>
+                      {nearbyOrgs.map((o) => (
+                        <option key={o.id} value={o.id}>
+                          {o.name}{o.distance !== null ? ` (${o.distance.toFixed(2)} km)` : ""}
+                        </option>
+                      ))}
+                    </select>
+                    {nearbyOrgs.length === 0 && (
+                      <button
+                        type="button"
+                        className="small-btn"
+                        onClick={loadNearbyOrgs}
+                      >
+                        📍 Reload Organisations
+                      </button>
+                    )}
+                  </>
+                )}
+
                 <label>Pickup Preference</label>
                 <select
                   name="pickup_preference"
@@ -334,7 +353,7 @@ const DonorDashboard = () => {
                 <tr>
                   <th>Date</th>
                   <th>Category</th>
-                  <th>Organisation</th>
+                  <th>Charity Given To</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -344,7 +363,7 @@ const DonorDashboard = () => {
                     <td>{new Date(d.created_at).toLocaleString()}</td>
                     <td>{d.category}</td>
 
-                    <td>{d.organisation_name || "Not Assigned"}</td>
+                    <td>{d.organisation_name || (d.status === "Settled" ? "—" : "Not yet assigned")}</td>
                     <td className={`status-${d.status}`}>
                       {d.status}
                     </td>

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Admindash.css";
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
 
-  const token = localStorage.getItem("token");
   const name = localStorage.getItem("name");
 
   const [recent, setRecent] = useState([]);
@@ -12,135 +13,169 @@ const AdminDashboard = () => {
   const [requests, setRequests] = useState([]);
   const [selectedOrgs, setSelectedOrgs] = useState({});
 
+  /* ================= HELPER: get fresh token ================= */
+  const getToken = () => localStorage.getItem("token");
+
+  /* ================= HELPER: handle auth errors ================= */
+  const handleAuthError = (res) => {
+    if (res.status === 401 || res.status === 403) {
+      localStorage.clear();
+      navigate("/login");
+      return true;
+    }
+    return false;
+  };
+
   /* ================= AUTH CHECK ================= */
   useEffect(() => {
-    if (!token) {
-      window.location.href = "/login";
+    const token = getToken();
+    const role = localStorage.getItem("role");
+    if (!token || role !== "admin") {
+      navigate("/login");
     }
   }, []);
 
   /* ================= LOAD DATA ================= */
 
-  const loadRecent = () => {
-    fetch("http://localhost:3000/admin/recent-donations", {
-      headers: {
-        "Authorization": "Bearer " + token
-      }
-    })
-      .then(res => res.json())
-      .then(setRecent)
-      .catch(err => console.error("Failed to load recent donations:", err));
+  const loadRecent = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/admin/recent-donations", {
+        headers: { "Authorization": "Bearer " + getToken() }
+      });
+      if (handleAuthError(res)) return;
+      const data = await res.json();
+      setRecent(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to load recent donations:", err);
+    }
   };
 
-  const loadAvailable = () => {
-    fetch("http://localhost:3000/admin/available-items", {
-      headers: {
-        "Authorization": "Bearer " + token
-      }
-    })
-      .then(res => res.json())
-      .then(setAvailable);
+  const loadAvailable = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/admin/available-items", {
+        headers: { "Authorization": "Bearer " + getToken() }
+      });
+      if (handleAuthError(res)) return;
+      const data = await res.json();
+      setAvailable(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to load available items:", err);
+    }
   };
 
-  const loadOrganisations = () => {
-    fetch("http://localhost:3000/admin/organisations", {
-      headers: {
-        "Authorization": "Bearer " + token
-      }
-    })
-      .then(res => res.json())
-      .then(setOrganisations);
+  const loadOrganisations = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/admin/organisations", {
+        headers: { "Authorization": "Bearer " + getToken() }
+      });
+      if (handleAuthError(res)) return;
+      const data = await res.json();
+      setOrganisations(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to load organisations:", err);
+    }
   };
 
-  const loadRequests = () => {
-    fetch("http://localhost:3000/admin/all-requests", {
-      headers: {
-        "Authorization": "Bearer " + token
-      }
-    })
-      .then(res => res.json())
-      .then(setRequests);
+  const loadRequests = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/admin/all-requests", {
+        headers: { "Authorization": "Bearer " + getToken() }
+      });
+      if (handleAuthError(res)) return;
+      const data = await res.json();
+      setRequests(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to load requests:", err);
+    }
   };
 
   useEffect(() => {
-    if (token) {
+    const token = getToken();
+    const role = localStorage.getItem("role");
+    if (token && role === "admin") {
       loadRecent();
       loadAvailable();
       loadOrganisations();
       loadRequests();
     }
-  }, [token]);
+  }, []);
 
   /* ================= ADMIN ACTIONS ================= */
 
-  const settleDonation = (donationId, organisation_id) => {
+  const settleDonation = async (donationId, organisation_id) => {
     if (!organisation_id) {
       alert("Please select organisation");
       return;
     }
 
-    fetch("http://localhost:3000/admin/settle-donation", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token
-      },
-      body: JSON.stringify({ donation_id: donationId, organisation_id }),
-    })
-      .then(res => res.json())
-      .then(data => {
-        alert(data.message);
-        loadAvailable();
-        loadRecent();
-      })
-      .catch(() => alert("Server error"));
+    try {
+      const res = await fetch("http://localhost:3000/admin/settle-donation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + getToken()
+        },
+        body: JSON.stringify({ donation_id: donationId, organisation_id }),
+      });
+      if (handleAuthError(res)) return;
+      const data = await res.json();
+      alert(data.message);
+      loadAvailable();
+      loadRecent();
+    } catch {
+      alert("Server error");
+    }
   };
 
-  const settleNeed = (id) => {
-    fetch("http://localhost:3000/admin/settle-need", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token
-      },
-      body: JSON.stringify({ id }),
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          alert(data.success);
-          loadRequests();
-        } else {
-          alert("Failed to settle request");
-        }
-      })
-      .catch(() => alert("Server error"));
+  const settleNeed = async (id) => {
+    try {
+      const res = await fetch("http://localhost:3000/admin/settle-need", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + getToken()
+        },
+        body: JSON.stringify({ id }),
+      });
+      if (handleAuthError(res)) return;
+      const data = await res.json();
+      if (data.success) {
+        alert("Request settled successfully");
+        loadRequests();
+      } else {
+        alert(data.message || "Failed to settle request");
+      }
+    } catch {
+      alert("Server error");
+    }
   };
 
-  const settleDonationRequest = (id) => {
-    fetch("http://localhost:3000/admin/settledonation", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token
-      },
-      body: JSON.stringify({ id }),
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          alert("Donation request settled successfully");
-          loadRequests();
-        } else {
-          alert("Failed to settle donation request");
-        }
-      })
-      .catch(() => alert("Server error"));
+  const settleDonationRequest = async (id) => {
+    try {
+      const res = await fetch("http://localhost:3000/admin/settledonation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + getToken()
+        },
+        body: JSON.stringify({ id }),
+      });
+      if (handleAuthError(res)) return;
+      const data = await res.json();
+      if (data.success) {
+        alert("Donation request settled successfully");
+        loadRequests();
+      } else {
+        alert("Failed to settle donation request");
+      }
+    } catch {
+      alert("Server error");
+    }
   };
 
   const logout = () => {
     localStorage.clear();
-    window.location.href = "/";
+    navigate("/");
   };
 
   return (
@@ -201,25 +236,32 @@ const AdminDashboard = () => {
               <tr>
                 <th>Donor</th>
                 <th>Category</th>
-                <th>Organisation</th>
+                <th>Donor's Chosen Org</th>
+                <th>Assign Organisation</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {available.length === 0 ? (
-                <tr><td colSpan="4">No pending donations</td></tr>
+                <tr><td colSpan="5">No pending donations</td></tr>
               ) : (
                 available.map((d) => (
                   <tr key={d.donation_id}>
                     <td>{d.donor_name}</td>
                     <td>{d.category}</td>
                     <td>
+                      {d.chosen_org_name
+                        ? <strong style={{ color: "#2e7d32" }}>✅ {d.chosen_org_name}</strong>
+                        : <span style={{ color: "#999" }}>Not selected</span>
+                      }
+                    </td>
+                    <td>
                       <select
-                        value={selectedOrgs[d.donation_id] || ""}
+                        value={selectedOrgs[d.donation_id] ?? d.organisation_id ?? ""}
                         onChange={(e) =>
                           setSelectedOrgs({
                             ...selectedOrgs,
-                            [d.donation_id]: Number(e.target.value)
+                            [d.donation_id]: e.target.value ? Number(e.target.value) : null
                           })
                         }
                       >
@@ -236,7 +278,7 @@ const AdminDashboard = () => {
                         onClick={() =>
                           settleDonation(
                             d.donation_id,
-                            selectedOrgs[d.donation_id]
+                            selectedOrgs[d.donation_id] ?? d.organisation_id
                           )
                         }
                       >
@@ -265,26 +307,30 @@ const AdminDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {requests.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.requester}</td>
-                  <td>{r.title}</td>
-                  <td>{r.description || "-"}</td>
-                  <td>{r.urgency}</td>
-                  <td>
-                    {r.status === "Fulfilled" || r.status === "Settled" ? (
-                      "✅ Settled"
-                    ) : r.type === "need" ? (
-                      <button onClick={() => settleNeed(r.id)}>Settle</button>
-                    ) : (
-                      <button onClick={() => settleDonationRequest(r.id)}>
-                        Settle
-                      </button>
-                    )}
-                  </td>
-                  <td>{new Date(r.created_at).toLocaleDateString()}</td>
-                </tr>
-              ))}
+              {requests.length === 0 ? (
+                <tr><td colSpan="6">No requests yet</td></tr>
+              ) : (
+                requests.map((r) => (
+                  <tr key={`${r.type}-${r.id}`}>
+                    <td>{r.requester}</td>
+                    <td>{r.title}</td>
+                    <td>{r.description || "-"}</td>
+                    <td>{r.urgency}</td>
+                    <td>
+                      {r.status === "Fulfilled" || r.status === "Settled" ? (
+                        "✅ Settled"
+                      ) : r.type === "need" ? (
+                        <button onClick={() => settleNeed(r.id)}>Settle</button>
+                      ) : (
+                        <button onClick={() => settleDonationRequest(r.id)}>
+                          Settle
+                        </button>
+                      )}
+                    </td>
+                    <td>{new Date(r.created_at).toLocaleDateString()}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

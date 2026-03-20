@@ -1,0 +1,176 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Anonymous Complaint Forum</title>
+    <style>
+      body {
+        font-family: Arial;
+        max-width: 600px;
+        margin: 40px auto;
+      }
+      textarea {
+        width: 100%;
+        height: 100px;
+      }
+      button {
+        padding: 10px;
+        margin-top: 10px;
+      }
+      .post {
+        background: #f2f2f2;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Anonymous Complaint Forum</h2>
+    <p id="messageBox"></p>
+    <label>Organization Name:</label>
+    <input
+      type="text"
+      id="organization"
+      placeholder="Enter organization name"
+      required
+    />
+    <br /><br />
+    <label>Complaint Type:</label>
+    <select id="type">
+      <option value="misconduct">Misconduct</option>
+      <option value="service">Poor Service</option>
+      <option value="corruption">Corruption</option>
+      <option value="donation">Donation Issue</option>
+      <option value="other">Other</option>
+    </select>
+    <br /><br />
+
+    <label>What action do you expect?</label>
+    <input
+      type="text"
+      id="action"
+      placeholder="e.g. Investigation, Refund, Public clarification"
+    />
+    <br /><br />
+
+    <textarea id="content" placeholder="Write your complaint..."></textarea>
+    <br />
+    <button onclick="submitPost()">Submit</button>
+
+    <h3>Complaints</h3>
+    <div id="posts"></div>
+
+    <script>
+      let currentPage = 1;
+      const limit = 5;
+
+      window.submitPost = async function () {
+        const content = document.getElementById("content").value;
+        const type = document.getElementById("type").value;
+        const action = document.getElementById("action").value;
+        const messageBox = document.getElementById("messageBox");
+        const organization = document.getElementById("organization").value;
+
+        if (!organization) {
+          messageBox.style.color = "red";
+          messageBox.innerText = "Organization name is required.";
+          return;
+        }
+
+        const response = await fetch("/create-post", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content, type, action, organization }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          messageBox.style.color = "red";
+          messageBox.innerText = data.message;
+        } else {
+          messageBox.style.color = "green";
+          messageBox.innerText = data.message;
+          document.getElementById("content").value = "";
+          document.getElementById("action").value = "";
+          loadPosts(currentPage);
+        }
+
+        setTimeout(() => {
+          messageBox.innerText = "";
+        }, 5000);
+      };
+
+      async function loadPosts(page = 1) {
+        const res = await fetch(`/posts?page=${page}&limit=${limit}`);
+        const data = await res.json();
+
+        const posts = data.posts;
+        const totalPages = data.totalPages;
+
+        const container = document.getElementById("posts");
+        container.innerHTML = "";
+
+        posts.forEach((post) => {
+          const div = document.createElement("div");
+          div.className = "post";
+
+          div.innerHTML = `
+        <strong>Organization:</strong> ${post.organization} <br>
+        <strong>Type:</strong> ${post.type} <br>
+        <strong>Requested Action:</strong> ${post.requestedAction} <br>
+        <strong>Complaint:</strong> ${post.content} <br><br>
+
+        👍 ${post.upvotes || 0}
+        <button onclick="vote(${post.id}, 'up')">Upvote</button>
+
+        👎 ${post.downvotes || 0}
+        <button onclick="vote(${post.id}, 'down')">Downvote</button>
+
+        <hr>
+      `;
+
+          container.appendChild(div);
+        });
+
+        renderPagination(totalPages);
+      }
+
+      function renderPagination(totalPages) {
+        const container = document.getElementById("posts");
+
+        const nav = document.createElement("div");
+        nav.style.marginTop = "20px";
+
+        for (let i = 1; i <= totalPages; i++) {
+          const btn = document.createElement("button");
+          btn.innerText = i;
+          btn.onclick = () => {
+            currentPage = i;
+            loadPosts(i);
+          };
+          nav.appendChild(btn);
+        }
+
+        container.appendChild(nav);
+      }
+
+      window.vote = async function (id, type) {
+        const response = await fetch(`/vote/${id}/${type}`, {
+          method: "POST",
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.message);
+          return;
+        }
+
+        loadPosts(currentPage);
+      };
+
+      loadPosts();
+    </script>
+  </body>
+</html>

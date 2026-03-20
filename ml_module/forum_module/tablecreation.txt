@@ -1,0 +1,18 @@
+CREATE TABLE IF NOT EXISTS posts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    type VARCHAR(50),
+    requested_action VARCHAR(255),
+    content TEXT,
+    organization VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE IF NOT EXISTS votes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    post_id INT,
+    user_identifier VARCHAR(255),
+    vote_type ENUM('up','down'),
+    UNIQUE KEY unique_vote (post_id, user_identifier),
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+);

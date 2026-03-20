@@ -37,6 +37,7 @@ export default function Home() {
       <nav className="home-navbar">
         <a href="/">Home</a>
         <a href="/register">Register</a>
+        <a href="/ForumPage">Forum</a>
         <a href="/login">Login</a>
       </nav>
 

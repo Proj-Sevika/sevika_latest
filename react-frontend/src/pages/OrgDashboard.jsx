@@ -5,10 +5,8 @@ import "./Orgdash.css";
 function OrgDashboard() {
   const navigate = useNavigate();
 
-  const token = localStorage.getItem("token");
   const orgId = localStorage.getItem("userId");
   const orgName = localStorage.getItem("name") || "Organization";
-  const role = localStorage.getItem("role");
 
   const [items, setItems] = useState([]);
   const [needs, setNeeds] = useState([]);
@@ -19,22 +17,38 @@ function OrgDashboard() {
     urgency: "Medium",
   });
 
+  /* ================= HELPER: get fresh token ================= */
+  const getToken = () => localStorage.getItem("token");
+
+  /* ================= HELPER: handle auth errors ================= */
+  const handleAuthError = (res) => {
+    if (res.status === 401 || res.status === 403) {
+      localStorage.clear();
+      navigate("/login");
+      return true;
+    }
+    return false;
+  };
+
   /* ================= PROTECT ROUTE ================= */
   useEffect(() => {
+    const token = getToken();
+    const role = localStorage.getItem("role");
     if (!token || role !== "organisation") {
       navigate("/login");
     }
-  }, [token, role, navigate]);
+  }, []);
 
   /* ================= FETCH AVAILABLE ITEMS ================= */
   const fetchItems = async () => {
     try {
       const res = await fetch("http://localhost:3000/donations/available", {
         headers: {
-          Authorization: "Bearer " + token,
+          Authorization: "Bearer " + getToken(),
         },
       });
 
+      if (handleAuthError(res)) return;
       const data = await res.json();
       setItems(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -49,7 +63,7 @@ function OrgDashboard() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
+          Authorization: "Bearer " + getToken(),
         },
         body: JSON.stringify({
           donation_id: donationId,
@@ -59,6 +73,7 @@ function OrgDashboard() {
 
       const result = await res.json();
 
+      if (handleAuthError(res)) return;
       if (res.ok) {
         alert("Donation requested successfully");
         fetchItems();
@@ -77,11 +92,12 @@ function OrgDashboard() {
         `http://localhost:3000/org-requests/${orgId}`,
         {
           headers: {
-            Authorization: "Bearer " + token,
+            Authorization: "Bearer " + getToken(),
           },
         }
       );
 
+      if (handleAuthError(res)) return;
       const data = await res.json();
       setNeeds(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -98,7 +114,7 @@ function OrgDashboard() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
+          Authorization: "Bearer " + getToken(),
         },
         body: JSON.stringify({
           ...formData,
@@ -129,11 +145,13 @@ function OrgDashboard() {
 
   /* ================= INITIAL LOAD ================= */
   useEffect(() => {
-    if (token && orgId) {
+    const token = getToken();
+    const role = localStorage.getItem("role");
+    if (token && orgId && role === "organisation") {
       fetchItems();
       fetchMyNeeds();
     }
-  }, [token, orgId]);
+  }, []);
 
   return (
     <div className="org-container">

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-
+import Forum from "./pages/ForumPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import DonorDashboard from "./pages/DonorDashboard";
@@ -14,6 +14,7 @@ function App() {
   const [showIntro, setShowIntro] = useState(() => {
   return sessionStorage.getItem("introPlayed") !== "true";
 });
+
 
 
   return (
@@ -44,6 +45,7 @@ function App() {
               <Route path="/donor" element={<DonorDashboard />} />
               <Route path="/org" element={<OrgDashboard />} />
               <Route path="*" element={<Home />} />
+              <Route path="/ForumPage" element={<Forum />} />
             </Routes>
           </motion.div>
         )}
