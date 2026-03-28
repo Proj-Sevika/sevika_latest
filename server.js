@@ -871,7 +871,7 @@ app.get("/food/nearby-orgs", authenticateToken, authorizeRole("donor"), async (r
 /* =====================================================
    SERVER
 ===================================================== */
-// TO:
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
