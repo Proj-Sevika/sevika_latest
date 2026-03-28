@@ -44,3 +44,31 @@
 [2026-03-28T05:33:03.471Z] LOGIN SUCCESS: anusha@gmail.com (Role: donor)
 [2026-03-28T05:33:36.117Z] LOGIN ATTEMPT: peace@gmail.com
 [2026-03-28T05:33:36.247Z] LOGIN SUCCESS: peace@gmail.com (Role: organisation)
+[2026-03-28T10:10:19.740Z] LOGIN ATTEMPT: admin@sevika.com
+[2026-03-28T10:14:14.166Z] LOGIN ATTEMPT: admin@sevika.com
+[2026-03-28T10:16:21.876Z] LOGIN ATTEMPT: admin@sevika.com
+[2026-03-28T10:17:06.474Z] LOGIN ATTEMPT: admin@sevika.com
+[2026-03-28T10:18:24.196Z] LOGIN ATTEMPT: admin@sevika.com
+[2026-03-28T10:18:24.311Z] LOGIN SUCCESS: admin@sevika.com (Role: admin)
+[2026-03-28T10:22:12.962Z] LOGIN ATTEMPT: admin@sevika.com
+[2026-03-28T10:22:13.072Z] LOGIN SUCCESS: admin@sevika.com (Role: admin)
+[2026-03-28T10:23:20.938Z] LOGIN ATTEMPT: happysmiles@gmail.com
+[2026-03-28T10:23:21.045Z] LOGIN SUCCESS: happysmiles@gmail.com (Role: organisation)
+[2026-03-28T10:33:06.046Z] LOGIN ATTEMPT: admin@sevika.com
+[2026-03-28T10:33:06.150Z] LOGIN SUCCESS: admin@sevika.com (Role: admin)
+[2026-03-28T10:34:43.528Z] LOGIN ATTEMPT: tomhawks@gmail.com
+[2026-03-28T10:34:43.644Z] LOGIN SUCCESS: tomhawks@gmail.com (Role: donor)
+[2026-03-28T10:35:08.750Z] /add-donation body: {"item_name":"Shampoo","quantity":"1","pickup_preference":"Delivery","expected_datetime":"2026-03-29T16:05","category":"toiletries"}
+[2026-03-28T10:35:08.750Z] FINAL QUANTITY TO DB: 1
+[2026-03-28T10:35:43.842Z] /add-donation body: {"gender":"Female","quantity":"5","age_group":"Adults","expected_datetime":"2026-03-30T16:05","category":"clothes"}
+[2026-03-28T10:35:43.842Z] FINAL QUANTITY TO DB: 5
+[2026-03-28T10:35:57.720Z] LOGIN ATTEMPT: admin@sevika.com
+[2026-03-28T10:35:57.824Z] LOGIN SUCCESS: admin@sevika.com (Role: admin)
+[2026-03-28T10:36:45.483Z] LOGIN ATTEMPT: tomhawks@gmail.com
+[2026-03-28T10:36:45.586Z] LOGIN SUCCESS: tomhawks@gmail.com (Role: donor)
+[2026-03-28T10:37:03.694Z] LOGIN ATTEMPT: happysmiles@gmail.com
+[2026-03-28T10:37:03.795Z] LOGIN SUCCESS: happysmiles@gmail.com (Role: organisation)
+[2026-03-28T10:37:39.528Z] LOGIN ATTEMPT: admin@sevika.com
+[2026-03-28T10:37:39.643Z] LOGIN SUCCESS: admin@sevika.com (Role: admin)
+[2026-03-28T10:38:30.016Z] LOGIN ATTEMPT: tomhawks@gmail.com
+[2026-03-28T10:38:30.120Z] LOGIN SUCCESS: tomhawks@gmail.com (Role: donor)
