@@ -46,7 +46,7 @@ function OrgDashboard() {
   /* ================= FETCH AVAILABLE ITEMS ================= */
   const fetchItems = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:3000/donations/available", {
+      const res = await fetch("https://sevikalatest-production.up.railway.app/donations/available", {
         headers: {
           Authorization: "Bearer " + getToken(),
         },
@@ -63,7 +63,7 @@ function OrgDashboard() {
   /* ================= REQUEST DONATION ================= */
   const requestItem = async (donationId) => {
     try {
-      const res = await fetch("http://127.0.0.1:3000/request-donation", {
+      const res = await fetch("https://sevikalatest-production.up.railway.app/request-donation", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -94,7 +94,7 @@ function OrgDashboard() {
   const fetchMyNeeds = async () => {
     try {
       const res = await fetch(
-        `http://127.0.0.1:3000/org-requests/${orgId}`,
+        `https://sevikalatest-production.up.railway.app/org-requests/${orgId}`,
         {
           headers: {
             Authorization: "Bearer " + getToken(),
@@ -130,7 +130,7 @@ function OrgDashboard() {
     }
 
     try {
-      const res = await fetch("http://127.0.0.1:3000/add-org-request", {
+      const res = await fetch("https://sevikalatest-production.up.railway.app/add-org-request", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

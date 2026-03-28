@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 function ForumPage() {
 
-  const API = "http://127.0.0.1:3000/api/forum";
+  const API = "https://sevikalatest-production.up.railway.app/api/forum";
 
   const [organization, setOrganization] = useState("");
   const [type, setType] = useState("misconduct");

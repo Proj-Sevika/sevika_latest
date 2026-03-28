@@ -43,7 +43,7 @@ const DonorDashboard = () => {
 
     try {
       const res = await fetch(
-        `http://127.0.0.1:3000/donor/history`,
+        `https://sevikalatest-production.up.railway.app/donor/history`,
         {
           headers: {
             "Authorization": "Bearer " + getToken()
@@ -68,7 +68,7 @@ const DonorDashboard = () => {
       setLoadingOrgs(true);
 
       const res = await fetch(
-        `http://127.0.0.1:3000/food/nearby-orgs`,
+        `https://sevikalatest-production.up.railway.app/food/nearby-orgs`,
         {
           headers: {
             "Authorization": "Bearer " + getToken()
@@ -130,7 +130,7 @@ const DonorDashboard = () => {
       console.log("SUBMITTING DATA:", data);
       console.log("TYPED QUANTITY:", formData.quantity);
 
-      const res = await fetch("http://127.0.0.1:3000/add-donation", {
+      const res = await fetch("https://sevikalatest-production.up.railway.app/add-donation", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

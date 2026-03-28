@@ -42,7 +42,7 @@ const AdminDashboard = () => {
 
   const loadRecent = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:3000/admin/recent-donations", {
+      const res = await fetch("https://sevikalatest-production.up.railway.app/admin/recent-donations", {
         headers: { "Authorization": "Bearer " + getToken() }
       });
       if (handleAuthError(res)) return;
@@ -55,7 +55,7 @@ const AdminDashboard = () => {
 
   const loadAvailable = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:3000/admin/available-items", {
+      const res = await fetch("https://sevikalatest-production.up.railway.app/admin/available-items", {
         headers: { "Authorization": "Bearer " + getToken() }
       });
       if (handleAuthError(res)) return;
@@ -68,7 +68,7 @@ const AdminDashboard = () => {
 
   const loadOrganisations = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:3000/admin/organisations", {
+      const res = await fetch("https://sevikalatest-production.up.railway.app/admin/organisations", {
         headers: { "Authorization": "Bearer " + getToken() }
       });
       if (handleAuthError(res)) return;
@@ -81,7 +81,7 @@ const AdminDashboard = () => {
 
   const loadOrgNeeds = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:3000/admin/org-needs", {
+      const res = await fetch("https://sevikalatest-production.up.railway.app/admin/org-needs", {
         headers: { "Authorization": "Bearer " + getToken() }
       });
       if (handleAuthError(res)) return;
@@ -94,7 +94,7 @@ const AdminDashboard = () => {
 
   const loadDonationRequests = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:3000/admin/donation-requests", {
+      const res = await fetch("https://sevikalatest-production.up.railway.app/admin/donation-requests", {
         headers: { "Authorization": "Bearer " + getToken() }
       });
       if (handleAuthError(res)) return;
@@ -107,7 +107,7 @@ const AdminDashboard = () => {
 
   const loadFoodDonations = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:3000/admin/food-donations", {
+      const res = await fetch("https://sevikalatest-production.up.railway.app/admin/food-donations", {
         headers: { "Authorization": "Bearer " + getToken() }
       });
       if (handleAuthError(res)) return;
@@ -140,7 +140,7 @@ const AdminDashboard = () => {
     }
 
     try {
-      const res = await fetch("http://127.0.0.1:3000/admin/settle-donation", {
+      const res = await fetch("https://sevikalatest-production.up.railway.app/admin/settle-donation", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -162,7 +162,7 @@ const AdminDashboard = () => {
     const donationId = selectedMatches[id];
     
     try {
-      const res = await fetch("http://127.0.0.1:3000/admin/settle-need", {
+      const res = await fetch("https://sevikalatest-production.up.railway.app/admin/settle-need", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -187,7 +187,7 @@ const AdminDashboard = () => {
 
   const settleDonationRequest = async (id) => {
     try {
-      const res = await fetch("http://127.0.0.1:3000/admin/settledonation", {
+      const res = await fetch("https://sevikalatest-production.up.railway.app/admin/settledonation", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -30,7 +30,7 @@ function Login() {
 
     try {
       const res = await axios.post(
-        "http://127.0.0.1:3000/login",
+        "https://sevikalatest-production.up.railway.app/login",
         formData
       );
 

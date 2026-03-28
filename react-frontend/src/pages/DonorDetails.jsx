@@ -15,7 +15,7 @@ const DonorDetails = () => {
     useEffect(() => {
         const fetchDonorDetails = async () => {
             try {
-                const res = await fetch(`http://127.0.0.1:3000/admin/donor/${id}`, {
+                const res = await fetch(`https://sevikalatest-production.up.railway.app/admin/donor/${id}`, {
                     headers: { "Authorization": "Bearer " + getToken() }
                 });
                 if (res.status === 401 || res.status === 403) {
