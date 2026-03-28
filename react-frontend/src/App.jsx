@@ -9,6 +9,7 @@ import OrgDashboard from "./pages/OrgDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Home from "./pages/Home";
 import Intro from "./pages/Intro";
+import DonorDetails from "./pages/DonorDetails";
 
 function App() {
   const [showIntro, setShowIntro] = useState(() => {
@@ -42,6 +43,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/donor/:id" element={<DonorDetails />} />
               <Route path="/donor" element={<DonorDashboard />} />
               <Route path="/org" element={<OrgDashboard />} />
               <Route path="*" element={<Home />} />

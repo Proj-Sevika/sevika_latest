@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "./Admindash.css";
 
 const AdminDashboard = () => {
@@ -12,6 +12,7 @@ const AdminDashboard = () => {
   const [organisations, setOrganisations] = useState([]);
   const [orgNeeds, setOrgNeeds] = useState([]);
   const [donationRequests, setDonationRequests] = useState([]);
+  const [foodDonations, setFoodDonations] = useState([]);
   const [selectedOrgs, setSelectedOrgs] = useState({});
   const [selectedMatches, setSelectedMatches] = useState({});
 
@@ -104,6 +105,19 @@ const AdminDashboard = () => {
     }
   };
 
+  const loadFoodDonations = async () => {
+    try {
+      const res = await fetch("http://127.0.0.1:3000/admin/food-donations", {
+        headers: { "Authorization": "Bearer " + getToken() }
+      });
+      if (handleAuthError(res)) return;
+      const data = await res.json();
+      setFoodDonations(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to load food donations:", err);
+    }
+  };
+
   useEffect(() => {
     const token = getToken();
     const role = localStorage.getItem("role");
@@ -113,6 +127,7 @@ const AdminDashboard = () => {
       loadOrganisations();
       loadOrgNeeds();
       loadDonationRequests();
+      loadFoodDonations();
     }
   }, []);
 
@@ -240,7 +255,11 @@ const AdminDashboard = () => {
               ) : (
                 recent.map((d, i) => (
                   <tr key={i}>
-                    <td>{d.donor_name}</td>
+                    <td>
+                      <Link to={`/admin/donor/${d.user_id}`} style={{ color: "#3498db", textDecoration: "none", fontWeight: "600" }}>
+                        {d.donor_name}
+                      </Link>
+                    </td>
                     <td>{["toiletries","electricals","stationary"].includes(d.category) ? `${d.category} (${d.item_name || "N/A"})` : d.category}</td>
                     <td>{d.quantity}</td>
                     <td>{d.organisation_name || "-"}</td>
@@ -261,24 +280,21 @@ const AdminDashboard = () => {
                 <th>Donor</th>
                 <th>Category</th>
                 <th>Available Qty</th>
-                <th>Donor's Chosen Org</th>
               </tr>
             </thead>
             <tbody>
               {available.length === 0 ? (
-                <tr><td colSpan="4">No pending donations</td></tr>
+                <tr><td colSpan="3">No pending donations</td></tr>
               ) : (
                 available.map((d) => (
                   <tr key={d.donation_id}>
-                    <td>{d.donor_name}</td>
+                    <td>
+                      <Link to={`/admin/donor/${d.user_id}`} style={{ color: "#3498db", textDecoration: "none", fontWeight: "600" }}>
+                        {d.donor_name}
+                      </Link>
+                    </td>
                     <td>{["toiletries","electricals","stationary"].includes(d.category) ? `${d.category} (${d.item_name || "N/A"})` : d.category}</td>
                     <td>{d.quantity}</td>
-                    <td>
-                      {d.chosen_org_name
-                        ? <strong style={{ color: "#2e7d32" }}>✅ {d.chosen_org_name}</strong>
-                        : <span style={{ color: "#999" }}>Not selected</span>
-                      }
-                    </td>
                   </tr>
                 ))
               )}
@@ -362,6 +378,17 @@ const AdminDashboard = () => {
                                 <button onClick={() => settleNeed(need.id)}>
                                   Settle with Donation
                                 </button>
+                                {selectedMatches[need.id] && (
+                                  <div style={{ fontSize: '0.8em', marginTop: '5px' }}>
+                                    Selected Donor: 
+                                    <Link 
+                                      to={`/admin/donor/${matches.find(m => m.donation_id == selectedMatches[need.id])?.user_id}`}
+                                      style={{ color: "#3498db", marginLeft: "5px", textDecoration: "none", fontWeight: "600" }}
+                                    >
+                                      {matches.find(m => m.donation_id == selectedMatches[need.id])?.donor_name}
+                                    </Link>
+                                  </div>
+                                )}
                               </>
                             ) : (
                               <>
@@ -392,6 +419,7 @@ const AdminDashboard = () => {
             <thead>
               <tr>
                 <th>Organization</th>
+                <th>Donor</th>
                 <th>Item Category</th>
                 <th>Qty Requested</th>
                 <th>Available</th>
@@ -402,11 +430,16 @@ const AdminDashboard = () => {
             </thead>
             <tbody>
               {donationRequests.length === 0 ? (
-                <tr><td colSpan="7">No donation requests</td></tr>
+                <tr><td colSpan="8">No donation requests</td></tr>
               ) : (
                 donationRequests.map((req) => (
                   <tr key={req.id}>
                     <td>{req.organisation_name}</td>
+                    <td>
+                      <Link to={`/admin/donor/${req.donor_id}`} style={{ color: "#3498db", textDecoration: "none", fontWeight: "600" }}>
+                        {req.donor_name}
+                      </Link>
+                    </td>
                     <td>{["toiletries","electricals","stationary"].includes(req.category) ? `${req.category} (${req.title || "N/A"})` : req.category}</td>
                     <td>{req.requested_quantity}</td>
                     <td>
@@ -427,6 +460,42 @@ const AdminDashboard = () => {
                         </button>
                       )}
                     </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Food Donations Section */}
+        <div className="card">
+          <h3>Food Donations</h3>
+          <p style={{ fontSize: "0.9em", color: "#666", marginBottom: "10px" }}>
+            Tracking food donations specifically with donor and organization details
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Donor Name</th>
+                <th>Quantity</th>
+                <th>Donating To</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {foodDonations.length === 0 ? (
+                <tr><td colSpan="4">No food donations tracked yet</td></tr>
+              ) : (
+                foodDonations.map((fd) => (
+                  <tr key={fd.donation_id}>
+                    <td>
+                      <Link to={`/admin/donor/${fd.user_id}`} style={{ color: "#3498db", textDecoration: "none", fontWeight: "600" }}>
+                        {fd.donor_name}
+                      </Link>
+                    </td>
+                    <td>{fd.quantity}</td>
+                    <td>{fd.organisation_name || "Not Specified / Multiple"}</td>
+                    <td>{new Date(fd.created_at).toLocaleDateString()}</td>
                   </tr>
                 ))
               )}

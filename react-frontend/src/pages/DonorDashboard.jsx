@@ -238,8 +238,8 @@ const DonorDashboard = () => {
                 setCategory(e.target.value);
                 setFormData({});
                 setNearbyOrgs([]);
-                if (e.target.value) {
-                  // Auto-load organisations when a category is selected
+                if (e.target.value === "food") {
+                  // Auto-load organisations when a category is selected (ONLY for food)
                   setTimeout(() => loadNearbyOrgs(), 0);
                 }
               }}
@@ -387,30 +387,34 @@ const DonorDashboard = () => {
             {/* COMMON FIELDS */}
             {category && (
               <>
-                <label>Select Organisation (optional — admin can assign later)</label>
-                {loadingOrgs ? (
-                  <p>Loading organisations...</p>
-                ) : (
+                {category === "food" && (
                   <>
-                    <select
-                      name="organisation_id"
-                      onChange={handleChange}
-                    >
-                      <option value="">No preference — let admin assign</option>
-                      {nearbyOrgs.map((o) => (
-                        <option key={o.id} value={o.id}>
-                          {o.name}{o.distance !== null ? ` (${o.distance.toFixed(2)} km)` : ""}
-                        </option>
-                      ))}
-                    </select>
-                    {nearbyOrgs.length === 0 && (
-                      <button
-                        type="button"
-                        className="small-btn"
-                        onClick={loadNearbyOrgs}
-                      >
-                        📍 Reload Organisations
-                      </button>
+                    <label>Select Organisation (optional — admin can assign later)</label>
+                    {loadingOrgs ? (
+                      <p>Loading organisations...</p>
+                    ) : (
+                      <>
+                        <select
+                          name="organisation_id"
+                          onChange={handleChange}
+                        >
+                          <option value="">No preference — let admin assign</option>
+                          {nearbyOrgs.map((o) => (
+                            <option key={o.id} value={o.id}>
+                              {o.name}{o.distance !== null ? ` (${o.distance.toFixed(2)} km)` : ""}
+                            </option>
+                          ))}
+                        </select>
+                        {nearbyOrgs.length === 0 && (
+                          <button
+                            type="button"
+                            className="small-btn"
+                            onClick={loadNearbyOrgs}
+                          >
+                            📍 Reload Organisations
+                          </button>
+                        )}
+                      </>
                     )}
                   </>
                 )}

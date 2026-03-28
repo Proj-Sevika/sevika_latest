@@ -205,16 +205,26 @@ app.post("/add-donation", authenticateToken, authorizeRole("donor"), (req, res) 
   fs.appendFileSync("server_debug.log", logMsg);
 
   if (category === "clothes") { data.gender = gender || null; data.age_group = age_group || null; }
-  if (category === "food") { data.food_type = food_type || null; data.prepared_date = prepared_date || null; data.best_before = best_before || null; data.pickup_urgency = pickup_urgency || null; }
+  if (category === "food") { 
+    data.food_type = food_type || null; 
+    data.prepared_date = prepared_date || null; 
+    data.best_before = best_before || null; 
+    data.pickup_urgency = pickup_urgency || null; 
+  } else {
+    // For non-food items, donor cannot choose organization
+    req.body.organisation_id = null;
+  }
   if (category === "medicine") { data.medicine_name = medicine_name || null; data.expiry_date = expiry_date || null; }
   if (["toiletries", "electricals", "stationary", "others"].includes(category)) { data.item_name = item_name || null; }
+
+  const organisation_id_to_use = (category === "food") ? organisation_id : null;
 
   const sql = `INSERT INTO donations (user_id, category, gender, age_group, food_type, prepared_date, best_before, pickup_urgency, medicine_name, expiry_date, item_name, organisation_id, pickup_preference, expected_datetime, quantity, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')`;
   const finalQuantity = quantity || 1;
   console.log("FINAL QUANTITY TO DB:", finalQuantity);
   fs.appendFileSync("server_debug.log", `[${new Date().toISOString()}] FINAL QUANTITY TO DB: ${finalQuantity}\n`);
 
-  db.query(sql, [user_id, category, data.gender, data.age_group, data.food_type, data.prepared_date, data.best_before, data.pickup_urgency, data.medicine_name, data.expiry_date, data.item_name, organisation_id || null, pickup_preference || "pickup", expected_datetime, finalQuantity], (err) => {
+  db.query(sql, [user_id, category, data.gender, data.age_group, data.food_type, data.prepared_date, data.best_before, data.pickup_urgency, data.medicine_name, data.expiry_date, data.item_name, organisation_id_to_use || null, pickup_preference || "pickup", expected_datetime, finalQuantity], (err) => {
     if (err) { console.log(err); return res.status(500).json({ message: "Donation failed" }); }
     res.json({ message: "Donation added successfully" });
   });
@@ -509,7 +519,7 @@ app.post("/admin/settledonation", authenticateToken, authorizeRole("admin"), asy
 app.get("/admin/recent-donations", authenticateToken, authorizeRole("admin"), async (req, res) => {
   try {
     const [rows] = await db.promise().query(`
-      SELECT d.donation_id, d.category, d.item_name, d.status, d.created_at AS settled_date, d.quantity,
+      SELECT d.donation_id, d.user_id, d.category, d.item_name, d.status, d.created_at AS settled_date, d.quantity,
              donor.full_name AS donor_name,
              org.full_name AS organisation_name
       FROM donations d
@@ -517,6 +527,7 @@ app.get("/admin/recent-donations", authenticateToken, authorizeRole("admin"), as
       LEFT JOIN user_sev org ON d.organisation_id = org.id
       WHERE d.status = 'Settled'
       ORDER BY d.created_at DESC
+      LIMIT 5
     `);
     res.json(rows);
   } catch (err) {
@@ -531,7 +542,7 @@ app.get("/admin/recent-donations", authenticateToken, authorizeRole("admin"), as
 app.get("/admin/available-items", authenticateToken, authorizeRole("admin"), async (req, res) => {
   try {
     const [rows] = await db.promise().query(`
-      SELECT d.donation_id, d.category, d.item_name, d.status, d.organisation_id, d.quantity,
+      SELECT d.donation_id, d.user_id, d.category, d.item_name, d.status, d.organisation_id, d.quantity,
              d.gender, d.age_group,
              donor.full_name AS donor_name,
              org.full_name AS chosen_org_name
@@ -619,10 +630,13 @@ app.get("/admin/donation-requests", authenticateToken, authorizeRole("admin"), a
         d.quantity AS available_quantity,
         dr.requested_at AS created_at,
         d.donation_id,
-        d.status AS donation_status
+        d.status AS donation_status,
+        donor.full_name AS donor_name,
+        donor.id AS donor_id
       FROM donation_requests dr
       JOIN user_sev u ON dr.org_id = u.id
       JOIN donations d ON dr.donation_id = d.donation_id
+      JOIN user_sev donor ON d.user_id = donor.id
       WHERE d.status = 'Requested'
       ORDER BY dr.requested_at DESC
     `);
@@ -630,6 +644,45 @@ app.get("/admin/donation-requests", authenticateToken, authorizeRole("admin"), a
   } catch (err) {
     console.error(err);
     res.status(500).send("DB error");
+  }
+});
+
+/* =====================================================
+   ADMIN: FOOD DONATIONS
+===================================================== */
+app.get("/admin/food-donations", authenticateToken, authorizeRole("admin"), async (req, res) => {
+  try {
+    const [rows] = await db.promise().query(`
+      SELECT d.donation_id, d.user_id, d.quantity, d.created_at,
+             donor.full_name AS donor_name,
+             org.full_name AS organisation_name
+      FROM donations d
+      JOIN user_sev donor ON d.user_id = donor.id
+      LEFT JOIN user_sev org ON d.organisation_id = org.id
+      WHERE d.category = 'food'
+      ORDER BY d.created_at DESC
+    `);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json([]);
+  }
+});
+
+/* =====================================================
+   ADMIN: DONOR DETAILS
+===================================================== */
+app.get("/admin/donor/:id", authenticateToken, authorizeRole("admin"), async (req, res) => {
+  try {
+    const [rows] = await db.promise().query(
+      "SELECT id, full_name, email, phone, latitude, longitude FROM user_sev WHERE id = ?",
+      [req.params.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ message: "Donor not found" });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "DB error" });
   }
 });
 

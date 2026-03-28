@@ -6,3 +6,41 @@
 [2026-03-27T04:28:38.712Z] LOGIN SUCCESS: shantibhavan@gmail.com (Role: organisation)
 [2026-03-27T04:29:18.968Z] LOGIN ATTEMPT: admin@gmail.com
 [2026-03-27T04:29:19.232Z] LOGIN SUCCESS: admin@gmail.com (Role: admin)
+[2026-03-27T05:08:09.115Z] LOGIN ATTEMPT: peace@gmail.com
+[2026-03-27T05:08:09.233Z] LOGIN SUCCESS: peace@gmail.com (Role: organisation)
+[2026-03-27T05:09:49.584Z] LOGIN ATTEMPT: anusha@gmail.com
+[2026-03-27T05:09:49.709Z] LOGIN SUCCESS: anusha@gmail.com (Role: donor)
+[2026-03-27T05:20:14.930Z] LOGIN ATTEMPT: admin@gmail.com
+[2026-03-27T05:20:15.068Z] LOGIN SUCCESS: admin@gmail.com (Role: admin)
+[2026-03-27T05:26:56.114Z] LOGIN ATTEMPT: admin@gmail.com
+[2026-03-27T05:26:56.324Z] LOGIN SUCCESS: admin@gmail.com (Role: admin)
+[2026-03-27T05:28:07.656Z] LOGIN ATTEMPT: anusha@gmail.com
+[2026-03-27T05:28:07.818Z] LOGIN SUCCESS: anusha@gmail.com (Role: donor)
+[2026-03-27T05:30:05.165Z] LOGIN ATTEMPT: admin@gmail.com
+[2026-03-27T05:30:05.335Z] LOGIN FAILED: Invalid password: admin@gmail.com
+[2026-03-27T05:30:12.277Z] LOGIN ATTEMPT: admin@gmail.com
+[2026-03-27T05:30:12.402Z] LOGIN SUCCESS: admin@gmail.com (Role: admin)
+[2026-03-27T06:02:13.697Z] LOGIN ATTEMPT: anusha@gmail.com
+[2026-03-27T06:02:13.978Z] LOGIN SUCCESS: anusha@gmail.com (Role: donor)
+[2026-03-27T06:02:39.687Z] LOGIN ATTEMPT: shantibhavan@gmail.com
+[2026-03-27T06:02:39.950Z] LOGIN SUCCESS: shantibhavan@gmail.com (Role: organisation)
+[2026-03-27T06:03:11.413Z] LOGIN ATTEMPT: admin@gmail.com
+[2026-03-27T06:03:11.691Z] LOGIN SUCCESS: admin@gmail.com (Role: admin)
+[2026-03-27T06:05:04.154Z] LOGIN ATTEMPT: admin@gmail.com
+[2026-03-27T06:05:04.428Z] LOGIN SUCCESS: admin@gmail.com (Role: admin)
+[2026-03-27T06:07:29.839Z] LOGIN ATTEMPT: anusha@gmail.com
+[2026-03-27T06:07:30.104Z] LOGIN SUCCESS: anusha@gmail.com (Role: donor)
+[2026-03-27T06:08:43.048Z] /add-donation body: {"food_type":"Packed","prepared_date":"2026-03-27","best_before":"2026-03-28","pickup_urgency":"Within 2 hours","quantity":"100","organisation_id":"10","expected_datetime":"2026-03-27T17:38","category":"food"}
+[2026-03-27T06:08:43.051Z] FINAL QUANTITY TO DB: 100
+[2026-03-27T06:09:36.669Z] LOGIN ATTEMPT: admin@gmail.com
+[2026-03-27T06:09:36.972Z] LOGIN SUCCESS: admin@gmail.com (Role: admin)
+[2026-03-27T06:24:00.016Z] LOGIN ATTEMPT: admin@gmail.com
+[2026-03-27T06:24:00.303Z] LOGIN SUCCESS: admin@gmail.com (Role: admin)
+[2026-03-28T05:32:07.744Z] LOGIN ATTEMPT: admin@gmail.com
+[2026-03-28T05:32:12.520Z] LOGIN ATTEMPT: admin@gmail.com
+[2026-03-28T05:32:15.555Z] LOGIN SUCCESS: admin@gmail.com (Role: admin)
+[2026-03-28T05:32:15.563Z] LOGIN SUCCESS: admin@gmail.com (Role: admin)
+[2026-03-28T05:33:03.295Z] LOGIN ATTEMPT: anusha@gmail.com
+[2026-03-28T05:33:03.471Z] LOGIN SUCCESS: anusha@gmail.com (Role: donor)
+[2026-03-28T05:33:36.117Z] LOGIN ATTEMPT: peace@gmail.com
+[2026-03-28T05:33:36.247Z] LOGIN SUCCESS: peace@gmail.com (Role: organisation)
